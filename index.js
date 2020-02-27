@@ -10,16 +10,16 @@ const MODEL_PATH =
 const IMAGE_SIZE = 150;
 const TOPK_PREDICTIONS = 3;
 
-let my_model;
+let cu_landmarks;
 const demo = async () => {
   status('Loading model...');
 
-  my_model = await tf.loadLayersModel(MODEL_PATH);
+  cu_landmarks = await tf.loadLayersModel(MODEL_PATH);
 
   // Warmup the model. This isn't necessary, but makes the first prediction
   // faster. Call `dispose` to release the WebGL memory allocated for the return
   // value of `predict`.
-  my_model.predict(tf.zeros([1, IMAGE_SIZE, IMAGE_SIZE, 3])).dispose();
+  cu_landmarks.predict(tf.zeros([1, IMAGE_SIZE, IMAGE_SIZE, 3])).dispose();
 
   status('');
 
@@ -39,7 +39,7 @@ const demo = async () => {
 };
 
 /**
- * Given an image element, makes a prediction through my_model returning the
+ * Given an image element, makes a prediction through cu_landmarks returning the
  * probabilities of the top K classes.
  */
 async function predict(imgElement) {
@@ -64,8 +64,8 @@ async function predict(imgElement) {
     const batched = normalized.reshape([1, IMAGE_SIZE, IMAGE_SIZE, 3]);
 
     startTime2 = performance.now();
-    // Make a prediction through my_model.
-    return my_model.predict(batched);
+    // Make a prediction through cu_landmarks.
+    return cu_landmarks.predict(batched);
   });
 
   // Convert logits to probabilities and class names.
@@ -82,7 +82,7 @@ async function predict(imgElement) {
 /**
  * Computes the probabilities of the topK classes given logits by computing
  * softmax to get probabilities and then sorting the probabilities.
- * @param logits Tensor representing the logits from my_model.
+ * @param logits Tensor representing the logits from cu_landmarks.
  * @param topK The number of top predictions to show.
  */
 async function getTopKClasses(logits, topK) {
